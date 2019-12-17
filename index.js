@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 
 const sign_up = require("./ref/sign_up.js");
 const log_in = require("./ref/log_in.js");
+const config = require("config");
 
 let loadedData = [];
 
@@ -84,7 +85,7 @@ function urlParse(url) {
 async function start() {
     try {
 
-        await mongoose.connect('mongodb+srv://user:FnEFdHSyvH7i0ft2@wordcards-dftds.mongodb.net/test?retryWrites=true&w=majority', {
+        await mongoose.connect(config.get('mongoURI'), {
             useNewUrlParser: true,
             useFindAndModify: false,
             useUnifiedTopology: true, // might cause problems?

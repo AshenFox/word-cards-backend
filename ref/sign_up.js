@@ -1,5 +1,8 @@
 const uuidv4 = require("uuid/v4");
 const userModel = require("./db_models.js");
+const bcrypt = require("bcryptjs");
+const config = require("config");
+const jwt = require("jsonwebtoken");
 
 const sign_up = {
 
@@ -274,9 +277,12 @@ const sign_up = {
     // ===== Sign up a user
 
     async sign_up(data) {
+        
         let {username, email, password} = data;
 
         if (await this.checkUser(username, email, password)) {
+
+            
 
             let reqData = {
                 server_id: uuidv4(),
@@ -285,6 +291,24 @@ const sign_up = {
                 password,
                 registration_date: new Date(),
             }
+
+            // let salt = bcrypt.genSaltSync(10);
+            // let hash = bcrypt.hashSync(reqData.password, salt);
+            // reqData.password = hash;
+
+            try {
+                reqData.password = await new Promise((resolve, reject) => {
+                    bcrypt.hash(reqData.password, 10, (err, hash) => {
+                        if (err) reject(err);
+                        resolve(hash);
+                    });
+                });
+            } catch(err) {
+                console.log(err);
+            };
+
+
+            console.log(reqData.password);
             console.log('A new user has been signed up!');
             console.log(reqData);
 
@@ -293,15 +317,6 @@ const sign_up = {
             });
 
             return 'A new user has been signed up!';
-
-            // {
-            //     server_id: 'b0dacc26-569b-4692-9dcb-330111363772',
-            //     username: 'HoarFox',
-            //     email: 'm321456@yandex.ru',
-            //     password: 'asdf321456A',
-            //     registration_date: 2019-12-13T10:41:26.442Z
-            // }
-
 
         } else {
 
@@ -313,7 +328,7 @@ const sign_up = {
         }
 
     },
-}
+};
 
 module.exports = sign_up;
 
@@ -332,5 +347,7 @@ module.exports = sign_up;
 //     });
 
 // };
+
+
 
 

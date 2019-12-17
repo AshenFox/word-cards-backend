@@ -1,4 +1,8 @@
 const userModel = require("./db_models.js");
+const bcrypt = require("bcryptjs");
+// const jwt = require("jsonwebtoken");
+// const config = require("config");
+const auth = require("./auth.js");
 
 const log_in = {
 
@@ -7,6 +11,7 @@ const log_in = {
 
     respose(data, res) {
         res.setHeader('Access-Control-Allow-Origin', '*');
+        console.log(res.getHeader('Set-Cookie'))
         res.write(data);
         res.end();
     },
@@ -65,7 +70,7 @@ const log_in = {
 
                 case '/log_in':
 
-                    resData = await this.log_in(reqData);
+                    resData = await this.log_in(reqData, res);
                     this.respose(resData, res);
                     
                     break;
@@ -135,12 +140,13 @@ const log_in = {
 
             let resData = await userModel.find({
                 username: username,
-                password: password
+                // password: password
             });
 
-            if(!resData.length) {
+            if(!await bcrypt.compare(password, resData[0].password)) {
                 obj.result = true;
             };
+
             if (opt) {
                 return obj.result;
             };
@@ -184,25 +190,23 @@ const log_in = {
         return false;
     },
 
-    async log_in(data) {
+    async log_in(data, res) {
 
         let {username, password} = data;
 
         if (await this.checkUser(username, password)) {
 
+            res.setHeader('Set-Cookie', 'sessionId=38afes7a8;');
 
-            console.log('A new user has been logged in!');
-            return 'A new user has been logged in!';
-
-
+            let userID = await auth.fetchUserID(username);
+            let token = await auth.createToken(userID);
+            return token;
 
         } else {
 
-
             console.log(`The user doesn't meet all the requirements!`);
             return `The user doesn't meet all the requirements!`;
-
-            
+    
         }
 
     },
