@@ -5,9 +5,13 @@ const http = require("http"),
 
 const mongoose = require("mongoose");
 
+
 const sign_up = require("./ref/sign_up.js");
 const log_in = require("./ref/log_in.js");
+const home = require("./ref/home.js");
+const edit = require("./ref/edit.js");
 const config = require("config");
+
 
 let loadedData = [];
 
@@ -57,10 +61,19 @@ function router(req, res) {
             log_in.manage(method, req, res);
             break;
 
-        default:
+        case '/home':
+        
+            home.manage(method, req, res);
+            break;
 
-            res.writeHead(400);
-            res.write("Error");
+        case '/edit':
+    
+            edit.manage(method, req, res);
+            break;
+
+        default:
+            res.writeHead(200);
+            res.write("Welcome to the server!");
             res.end();
     }
 };

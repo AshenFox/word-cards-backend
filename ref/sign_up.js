@@ -1,17 +1,19 @@
 const uuidv4 = require("uuid/v4");
-const userModel = require("./db_models.js");
+const userModel = require("./user_model.js");
 const bcrypt = require("bcryptjs");
-const config = require("config");
-const jwt = require("jsonwebtoken");
+const auth = require("./auth.js")
 
 const sign_up = {
 
     userRegExp: /[A-z0-9]/,
     passRegExp: /[A-z0-9"!#$%&'()*+,.:;<=>?@\]\[^_`{}~"\/\\\-]/,
 
-    respose(data, res) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.write(data);
+    respose(status, res, data) {
+        res.writeHead(status, {
+            'Access-Control-Allow-Origin': 'https://hoarfox.github.io',//null
+            'Access-Control-Allow-Credentials': true
+        });
+        if(data) res.write(data);
         res.end();
     },
 
@@ -38,62 +40,66 @@ const sign_up = {
             switch(method) {
                 case '/min_length/username':
                     resData = this.minLength(reqData.data, 5);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
 
                     break;
 
                 case '/min_length/password':
                     resData = this.minLength(reqData.data, 7);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/invalid_char/username':
                     resData = this.invalidChar(reqData.data, this.userRegExp);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/invalid_char/password':
                     resData = this.invalidChar(reqData.data, this.passRegExp);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/user_exists':
                     resData = await this.userExists(reqData.data);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/email_format':
                     resData = this.emailFormat(reqData.data);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/email_taken':
                     resData = await this.emailTaken(reqData.data);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/one_uppercase':
                     resData = this.oneUppercase(reqData.data);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/sign_up':
-                    resData = await this.sign_up(reqData);
-                    this.respose(resData, res);
+                    
+                    if(await this.sign_up(reqData, res)) {
+                        this.respose(200, res);
+                    } else {
+                        this.respose(400, res);
+                    };
                     
                     break;
 
                 // test case
                 case '/test':
                     resData = await this.test();
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
@@ -276,7 +282,7 @@ const sign_up = {
 
     // ===== Sign up a user
 
-    async sign_up(data) {
+    async sign_up(data, res) {
         
         let {username, email, password} = data;
 
@@ -316,13 +322,17 @@ const sign_up = {
                 console.log(err);
             });
 
-            return 'A new user has been signed up!';
+            // let token = await auth.createToken(reqData.server_id);
+            // auth.setCookie(res, token);
+
+            console.log('A new user has been signed up!');
+            return true;
 
         } else {
 
 
             console.log(`The user doesn't meet all the requirements!`);
-            return `The user doesn't meet all the requirements!`;
+            return false;
 
             
         }

@@ -1,4 +1,4 @@
-const userModel = require("./db_models.js");
+const userModel = require("./user_model.js");
 const bcrypt = require("bcryptjs");
 // const jwt = require("jsonwebtoken");
 // const config = require("config");
@@ -9,10 +9,12 @@ const log_in = {
     userRegExp: /[A-z0-9]/,
     passRegExp: /[A-z0-9"!#$%&'()*+,.:;<=>?@\]\[^_`{}~"\/\\\-]/,
 
-    respose(data, res) {
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        console.log(res.getHeader('Set-Cookie'))
-        res.write(data);
+    respose(status, res, data) {
+        res.writeHead(status, {
+            'Access-Control-Allow-Origin': 'https://hoarfox.github.io',//null
+            'Access-Control-Allow-Credentials': true
+        });
+        if(data) res.write(data);
         res.end();
     },
 
@@ -36,42 +38,50 @@ const log_in = {
                 case '/no_user':
 
                     resData = await this.noUser(reqData.data);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
 
                     break;
 
                 case '/invalid_char/username':
 
                     resData = this.invalidChar(reqData.data, this.userRegExp);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
                 
                 case '/invalid_char/password':
  
                     resData = this.invalidChar(reqData.data, this.passRegExp);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/is_empty':
 
                     resData = this.isEmpty(reqData.data);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/incorrect_password':
 
                     resData = await this.incorrectPassword(reqData.username, reqData.password);
-                    this.respose(resData, res);
+                    this.respose(200, res, resData);
                     
                     break;
 
                 case '/log_in':
 
-                    resData = await this.log_in(reqData, res);
-                    this.respose(resData, res);
+                    if(await this.log_in(reqData, res)) {
+                        this.respose(200, res);
+                    } else {
+                        this.respose(401, res);
+                    };
+                    break;
+
+                case '/test':
+                    resData = await this.test();
+                    this.respose(200, res, resData);
                     
                     break;
 
@@ -81,6 +91,19 @@ const log_in = {
         });
 
 
+        
+    },
+
+    async test() {
+
+        try {
+            return JSON.stringify(await userModel.find({
+                username: 'ansdkdnfkf'
+            }));
+        } catch(err) {
+            console.log(err);
+        }
+        
         
     },
 
@@ -196,16 +219,18 @@ const log_in = {
 
         if (await this.checkUser(username, password)) {
 
-            res.setHeader('Set-Cookie', 'sessionId=38afes7a8;');
+            
 
             let userID = await auth.fetchUserID(username);
             let token = await auth.createToken(userID);
-            return token;
+            auth.setCookie(res, token);
+            console.log(`A user has logged in!`);
+            return true;
 
         } else {
 
             console.log(`The user doesn't meet all the requirements!`);
-            return `The user doesn't meet all the requirements!`;
+            return false;
     
         }
 
