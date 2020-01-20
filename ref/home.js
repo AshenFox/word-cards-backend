@@ -10,7 +10,7 @@ const home = {
     
     respose(status, res, data) {
         res.writeHead(status, {
-            'Access-Control-Allow-Origin': 'https://hoarfox.github.io',//null
+            'Access-Control-Allow-Origin': 'null',//https://hoarfox.github.io
             'Access-Control-Allow-Credentials': true
         });
         if(data) res.write(data);
@@ -36,8 +36,6 @@ const home = {
 
             switch(method) {
 
-                
-
                 case '/get_user_data':
 
                     user = await auth.init(req);
@@ -59,12 +57,6 @@ const home = {
                         this.respose(401, res, 'Failed to authorize');
                     };
                     break;
-
-
-                /* ----- Test cases ----- */
-
-
-                
 
                 case '/auth':
 

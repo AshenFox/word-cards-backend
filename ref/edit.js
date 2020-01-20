@@ -7,7 +7,7 @@ const edit = {
     
     respose(status, res, data) {
         res.writeHead(status, {
-            'Access-Control-Allow-Origin': 'https://hoarfox.github.io',//null
+            'Access-Control-Allow-Origin': 'null',// https://hoarfox.github.io
             'Access-Control-Allow-Credentials': true
         });
         if(data) res.write(data);
@@ -113,19 +113,6 @@ const edit = {
                             this.respose(500, res, false);
                         }
                         
-                    } else {
-                        this.respose(401, res, 'Failed to authorize');
-                    };
-                    break;
-
-                /* ----- Test cases ----- */
-
-                case '/test':
-
-                    user = await auth.init(req);
-
-                    if (user) {
-                        this.respose(200, res, false);
                     } else {
                         this.respose(401, res, 'Failed to authorize');
                     };

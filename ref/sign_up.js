@@ -10,7 +10,7 @@ const sign_up = {
 
     respose(status, res, data) {
         res.writeHead(status, {
-            'Access-Control-Allow-Origin': 'https://hoarfox.github.io',//null
+            'Access-Control-Allow-Origin': 'null',//https://hoarfox.github.io
             'Access-Control-Allow-Credentials': true
         });
         if(data) res.write(data);
@@ -18,10 +18,6 @@ const sign_up = {
     },
 
     manage(method, req, res) {
-        
-        // console.log('fire');
-        // console.log(req.url);
-        // console.log(method);
 
         let reqData = [];
         let resData;
@@ -33,9 +29,6 @@ const sign_up = {
         req.on('end', async () => {
 
             reqData = JSON.parse(Buffer.concat(reqData).toString());
-
-            // console.log(reqData);
-            // console.log(method);
 
             switch(method) {
                 case '/min_length/username':
@@ -96,13 +89,6 @@ const sign_up = {
                     
                     break;
 
-                // test case
-                case '/test':
-                    resData = await this.test();
-                    this.respose(200, res, resData);
-                    
-                    break;
-
                 default:
             };
    
@@ -111,26 +97,7 @@ const sign_up = {
         
     },
 
-    async test() {
-
-        try {
-            return JSON.stringify(await userModel.find({
-                username: 'ansdkdnfkf'
-            }));
-        } catch(err) {
-            console.log(err);
-        }
-        
-        
-    },
-
-
-
-
     // ===== User checks
-
-
-
 
     minLength(str, length, opt) {
 
