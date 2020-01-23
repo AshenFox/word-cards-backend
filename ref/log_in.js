@@ -11,7 +11,7 @@ const log_in = {
 
     respose(status, res, data) {
         res.writeHead(status, {
-            'Access-Control-Allow-Origin': 'null',//https://hoarfox.github.io
+            'Access-Control-Allow-Origin': 'https://hoarfox.github.io',//'null'
             'Access-Control-Allow-Credentials': true
         });
         if(data) res.write(data);
