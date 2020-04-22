@@ -5,236 +5,208 @@ const bcrypt = require("bcryptjs");
 const auth = require("./auth.js");
 
 const log_in = {
+  userRegExp: /[A-z0-9]/,
+  passRegExp: /[A-z0-9"!#$%&'()*+,.:;<=>?@\]\[^_`{}~"\/\\\-]/,
 
-    userRegExp: /[A-z0-9]/,
-    passRegExp: /[A-z0-9"!#$%&'()*+,.:;<=>?@\]\[^_`{}~"\/\\\-]/,
+  respose(status, res, data) {
+    res.writeHead(status, {
+      "Access-Control-Allow-Origin": "https://hoarfox.github.io", //'http://127.0.0.1:8080'
+      "Access-Control-Allow-Credentials": true,
+    });
+    if (data) res.write(data);
+    res.end();
+  },
 
-    respose(status, res, data) {
-        res.writeHead(status, {
-            'Access-Control-Allow-Origin': 'https://hoarfox.github.io',//'null'
-            'Access-Control-Allow-Credentials': true
-        });
-        if(data) res.write(data);
-        res.end();
-    },
+  manage(method, req, res) {
+    let reqData = [];
+    let resData;
 
-    manage(method, req, res) {
+    req.on("data", (chunk) => {
+      reqData.push(chunk);
+    });
 
-        let reqData = [];
-        let resData;
+    req.on("end", async () => {
+      reqData = JSON.parse(Buffer.concat(reqData).toString());
 
-        req.on('data', chunk => {
-            reqData.push(chunk);
-        });
+      switch (method) {
+        case "/no_user":
+          resData = await this.noUser(reqData.data);
+          this.respose(200, res, resData);
 
-        
+          break;
 
-        req.on('end', async () => {
+        case "/invalid_char/username":
+          resData = this.invalidChar(reqData.data, this.userRegExp);
+          this.respose(200, res, resData);
 
-            reqData = JSON.parse(Buffer.concat(reqData).toString());
+          break;
 
-            switch(method) {
+        case "/invalid_char/password":
+          resData = this.invalidChar(reqData.data, this.passRegExp);
+          this.respose(200, res, resData);
 
-                case '/no_user':
+          break;
 
-                    resData = await this.noUser(reqData.data);
-                    this.respose(200, res, resData);
+        case "/is_empty":
+          resData = this.isEmpty(reqData.data);
+          this.respose(200, res, resData);
 
-                    break;
+          break;
 
-                case '/invalid_char/username':
+        case "/incorrect_password":
+          resData = await this.incorrectPassword(
+            reqData.username,
+            reqData.password
+          );
+          this.respose(200, res, resData);
 
-                    resData = this.invalidChar(reqData.data, this.userRegExp);
-                    this.respose(200, res, resData);
-                    
-                    break;
-                
-                case '/invalid_char/password':
- 
-                    resData = this.invalidChar(reqData.data, this.passRegExp);
-                    this.respose(200, res, resData);
-                    
-                    break;
+          break;
 
-                case '/is_empty':
+        case "/log_in":
+          if (await this.log_in(reqData, res)) {
+            this.respose(200, res);
+          } else {
+            this.respose(401, res);
+          }
+          break;
 
-                    resData = this.isEmpty(reqData.data);
-                    this.respose(200, res, resData);
-                    
-                    break;
+        case "/test":
+          resData = await this.test();
+          this.respose(200, res, resData);
 
-                case '/incorrect_password':
+          break;
 
-                    resData = await this.incorrectPassword(reqData.username, reqData.password);
-                    this.respose(200, res, resData);
-                    
-                    break;
+        default:
+      }
+    });
+  },
 
-                case '/log_in':
+  async test() {
+    try {
+      return JSON.stringify(
+        await userModel.find({
+          username: "ansdkdnfkf",
+        })
+      );
+    } catch (err) {
+      console.log(err);
+    }
+  },
 
-                    if(await this.log_in(reqData, res)) {
-                        this.respose(200, res);
-                    } else {
-                        this.respose(401, res);
-                    };
-                    break;
+  invalidChar(str, allowed, opt) {
+    let obj = {
+      result: false,
+    };
 
-                case '/test':
-                    resData = await this.test();
-                    this.respose(200, res, resData);
-                    
-                    break;
+    let arr = [...str];
 
-                default:
-            };
-   
-        });
+    for (let i = 0; i < arr.length; i++) {
+      if (!allowed.test(arr[i])) {
+        obj.result = true;
+      }
+    }
 
+    if (opt) {
+      return obj.result;
+    }
+    return JSON.stringify(obj);
+  },
 
-        
-    },
+  async noUser(str, opt) {
+    try {
+      let obj = {
+        result: false,
+      };
 
-    async test() {
+      let resData = await userModel.find({
+        username: str,
+      });
 
-        try {
-            return JSON.stringify(await userModel.find({
-                username: 'ansdkdnfkf'
-            }));
-        } catch(err) {
-            console.log(err);
-        }
-        
-        
-    },
+      if (!resData.length) {
+        obj.result = true;
+      }
+      if (opt) {
+        return obj.result;
+      }
 
-    invalidChar(str, allowed, opt) {
-        let obj = {
-            result: false,
-        };
+      return JSON.stringify(obj);
+    } catch (err) {
+      console.log(err);
+    }
+  },
 
-        let arr = [...str];
+  async incorrectPassword(username, password, opt) {
+    try {
+      let obj = {
+        result: false,
+      };
 
-        for (let i = 0; i < arr.length; i++) {
+      let resData = await userModel.find({
+        username: username,
+        // password: password
+      });
 
-            if (!allowed.test(arr[i])) {
-                obj.result = true;
-            }
- 
-        };
+      if (!(await bcrypt.compare(password, resData[0].password))) {
+        obj.result = true;
+      }
 
-        if (opt) {
-            return obj.result;
-        };
-        return JSON.stringify(obj);
-    },
+      if (opt) {
+        return obj.result;
+      }
 
-    async noUser(str, opt) {
-        try {
+      return JSON.stringify(obj);
+    } catch (err) {
+      console.log(err);
+    }
+  },
 
-            let obj = {
-                result: false,
-            };
+  isEmpty(str, opt) {
+    // might not work
 
-            let resData = await userModel.find({
-                username: str
-            });
+    let obj = {
+      result: false,
+    };
 
-            if(!resData.length) {
-                obj.result = true;
-            };
-            if (opt) {
-                return obj.result;
-            };
-            
-            return JSON.stringify(obj);
+    if (!str) {
+      obj.result = true;
+    }
 
-        } catch(err) {
-            console.log(err);
-        };
-    },
+    if (opt) {
+      return obj.result;
+    }
 
-    async incorrectPassword(username, password, opt) {
+    return JSON.stringify(obj);
+  },
 
-        try {
+  async checkUser(username, password) {
+    if (
+      !(await this.noUser(username, true)) &&
+      !this.invalidChar(username, this.userRegExp, true) &&
+      !this.invalidChar(password, this.passRegExp, true) &&
+      !this.isEmpty(username, true) &&
+      !this.isEmpty(password, true) &&
+      !(await this.incorrectPassword(username, password, true))
+    ) {
+      return true;
+    }
 
-            let obj = {
-                result: false,
-            };
+    return false;
+  },
 
-            let resData = await userModel.find({
-                username: username,
-                // password: password
-            });
+  async log_in(data, res) {
+    let { username, password } = data;
 
-            if(!await bcrypt.compare(password, resData[0].password)) {
-                obj.result = true;
-            };
-
-            if (opt) {
-                return obj.result;
-            };
-            
-            return JSON.stringify(obj);
-
-        } catch(err) {
-            console.log(err);
-        };
-    },
-
-    isEmpty(str, opt) { // might not work
-
-        let obj = {
-            result: false,
-        };
-
-        if (!str) {
-            obj.result = true;
-        }
-
-        if (opt) {
-            return obj.result;
-        };
-
-        return JSON.stringify(obj);
-    },
-
-    async checkUser(username, password) {
-
-        if (!await this.noUser(username, true) &&
-            !this.invalidChar(username, this.userRegExp, true) &&
-            !this.invalidChar(password, this.passRegExp, true) &&
-            !this.isEmpty(username, true) &&
-            !this.isEmpty(password, true) &&
-            !await this.incorrectPassword(username, password, true)) {
-
-            return true;
-        } 
-
-        return false;
-    },
-
-    async log_in(data, res) {
-
-        let {username, password} = data;
-
-        if (await this.checkUser(username, password)) {
-
-            
-
-            let userID = await auth.fetchUserID(username);
-            let token = await auth.createToken(userID);
-            auth.setCookie(res, token);
-            console.log(`A user has logged in!`);
-            return true;
-
-        } else {
-
-            console.log(`The user doesn't meet all the requirements!`);
-            return false;
-    
-        }
-
-    },
-}
+    if (await this.checkUser(username, password)) {
+      let userID = await auth.fetchUserID(username);
+      let token = await auth.createToken(userID);
+      auth.setCookie(res, token);
+      console.log(`A user has logged in!`);
+      return true;
+    } else {
+      console.log(`The user doesn't meet all the requirements!`);
+      return false;
+    }
+  },
+};
 
 module.exports = log_in;
