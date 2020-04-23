@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 // const jwt = require("jsonwebtoken");
 // const config = require("config");
 const auth = require("./auth.js");
+const constants = require("./constants.js");
 
 const log_in = {
   userRegExp: /[A-z0-9]/,
@@ -10,7 +11,7 @@ const log_in = {
 
   respose(status, res, data) {
     res.writeHead(status, {
-      "Access-Control-Allow-Origin": "https://hoarfox.github.io", //'http://127.0.0.1:8080'
+      "Access-Control-Allow-Origin": `${constants.corsURL}`,
       "Access-Control-Allow-Credentials": true,
     });
     if (data) res.write(data);

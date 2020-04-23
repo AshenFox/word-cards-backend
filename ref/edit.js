@@ -1,11 +1,12 @@
 const auth = require("./auth.js");
 const moduleModel = require("./module_model.js");
 const clientInterface = require("./imgsearch.js");
+const constants = require("./constants.js");
 
 const edit = {
   respose(status, res, data) {
     res.writeHead(status, {
-      "Access-Control-Allow-Origin": "https://hoarfox.github.io", //'http://127.0.0.1:8080' "null"
+      "Access-Control-Allow-Origin": `${constants.corsURL}`,
       "Access-Control-Allow-Credentials": true,
     });
     if (data) res.write(data);
@@ -108,24 +109,25 @@ const edit = {
           break;
 
         case "/imgsearch":
-          // user = await auth.init(req);
-          // if (user) {
-          // } else {
-          // }
-          if (reqData.inquiry === "") {
-            this.respose(400, res, "Bad Request");
-            break;
-          }
+          user = await auth.init(req);
+          if (user) {
+            if (reqData.inquiry === "") {
+              this.respose(400, res, "Bad Request");
+              break;
+            }
 
-          let searchResults = await clientInterface.search(reqData.inquiry);
-          if (searchResults) {
-            this.respose(200, res, JSON.stringify(searchResults));
+            let searchResults = await clientInterface.search(reqData.inquiry);
+            if (searchResults) {
+              this.respose(200, res, JSON.stringify(searchResults));
+            } else {
+              this.respose(
+                503,
+                res,
+                JSON.stringify({ msg: "Service Unavailable" })
+              );
+            }
           } else {
-            this.respose(
-              503,
-              res,
-              JSON.stringify({ msg: "Service Unavailable" })
-            );
+            this.respose(401, res, "Failed to authorize");
           }
 
           break;
@@ -143,11 +145,11 @@ const edit = {
     if (oldModule) {
       oldModule.title = module.title;
       oldModule.cards = module.cards;
-      oldModule.number = module.cards.length;
+      oldModule.number = module.cards.length; // EDIT ... nothing seeds to be changed
     }
 
     try {
-      console.log(await oldModule.save());
+      await oldModule.save();
     } catch (err) {
       console.log(err);
     }
@@ -166,11 +168,11 @@ const edit = {
     } else {
       draft.title = draftData.title;
       draft.cards = draftData.cards;
-      draft.number = draftData.cards.length;
+      draft.number = draftData.cards.length; // EDIT ... nothing needs to be changed
     }
 
     try {
-      console.log(await draft.save());
+      await draft.save();
     } catch (err) {
       console.log(err);
     }
@@ -202,6 +204,11 @@ const edit = {
     let title = response.title;
     let cards = response.cards;
 
+    // console.log(
+    //   module.title !== title || module.cards.length != response.cards.length,
+    //   "First check"
+    // );
+
     if (
       module.title !== title ||
       module.cards.length != response.cards.length
@@ -212,16 +219,25 @@ const edit = {
     for (let i in module.cards) {
       let item = module.cards[i];
 
+      // console.log(!cards[i], "Second check");
+
       if (!cards[i]) {
         return true;
       }
-
-      if (
-        item.term !== cards[i].term ||
-        item.defenition !== cards[i].defenition
-      ) {
-        return true;
+      // console.log(item);
+      for (let property in item) {
+        // console.log(item[property] !== cards[i][property]);
+        if (item[property] !== cards[i][property]) {
+          return true;
+        }
       }
+
+      // if (
+      //   item.term !== cards[i].term || // Add a loop
+      //   item.defenition !== cards[i].defenition // EDIT ... add url field
+      // ) {
+      //   return true;
+      // }
     }
 
     return false;

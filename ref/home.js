@@ -1,13 +1,14 @@
 // const jwt = require("jsonwebtoken");
 // const config = require("config");
 // const userModel = require("./db_models.js");
+const constants = require("./constants.js");
 const auth = require("./auth.js");
 const moduleModel = require("./module_model.js");
 
 const home = {
   respose(status, res, data) {
     res.writeHead(status, {
-      "Access-Control-Allow-Origin": "https://hoarfox.github.io", //'http://127.0.0.1:8080' null
+      "Access-Control-Allow-Origin": `${constants.corsURL}`,
       "Access-Control-Allow-Credentials": true,
     });
     if (data) res.write(data);
