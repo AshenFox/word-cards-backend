@@ -91,15 +91,20 @@ const home = {
     return JSON.stringify(data);
   },
 
-  async getModule(user, id) {
-    // I think I dn't need this one
-    let model = moduleModel(user.username);
-    let module = await model.findOne({
-      _id: id,
-    });
+  // async getModule(user, id) {
+  //   // I think I dn't need this one
+  //   let model = moduleModel(user.username);
 
-    return module;
-  },
+  //   try {
+  //     let module = await model.findOne({
+  //       _id: id,
+  //     });
+  //     return module;
+  //   } catch (err) {
+  //     return false;
+  //     console.log(err);
+  //   }
+  // },
 };
 
 module.exports = home;

@@ -30,17 +30,20 @@ const edit = {
       switch (method) {
         case "/get_module":
           user = await auth.init(req);
-
+          let module;
           if (user) {
             if (reqData.draft) {
-              this.respose(200, res, JSON.stringify(await this.getDraft(user)));
+              module = await this.getDraft(user);
             } else {
-              this.respose(
-                200,
-                res,
-                JSON.stringify(await this.getModule(user, reqData.id))
-              );
+              module = await this.getModule(user, reqData.id);
             }
+
+            if (!module) {
+              this.respose(404, res, "Not found");
+              return;
+            }
+
+            this.respose(200, res, JSON.stringify(module));
           } else {
             this.respose(401, res, "Failed to authorize");
           }
@@ -85,7 +88,6 @@ const edit = {
           user = await auth.init(req);
 
           if (user) {
-            console.log(reqData);
             await this.deleteModule(reqData._id, user);
             this.respose(200, res, false);
           } else {
@@ -189,7 +191,6 @@ const edit = {
   },
 
   async deleteDraft(user) {
-    console.log("fire!");
     let draft = await this.getDraft(user);
     if (draft) {
       let model = moduleModel(user.username);
@@ -201,6 +202,8 @@ const edit = {
 
   async isChanged({ _id, module }, user) {
     let response = await this.getModule(user, _id);
+    if (!response) return false;
+
     let title = response.title;
     let cards = response.cards;
 
@@ -270,20 +273,32 @@ const edit = {
 
   async getModule(user, id) {
     let model = moduleModel(user.username);
-    let module = await model.findOne({
-      _id: id,
-    });
+    try {
+      let module = await model.findOne({
+        _id: id,
+      });
 
-    return module;
+      if (user.server_id !== module.author_id) return false;
+
+      return module;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
   },
 
   async getDraft(user) {
     let model = moduleModel(user.username);
-    let module = await model.findOne({
-      draft: true,
-    });
+    try {
+      let module = await model.findOne({
+        draft: true,
+      });
 
-    return module;
+      return module;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
   },
 };
 
