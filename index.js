@@ -10,6 +10,7 @@ const log_in = require("./ref/log_in.js");
 const home = require("./ref/home.js");
 const edit = require("./ref/edit.js");
 const config = require("config");
+const constants = require("./ref/constants.js");
 
 let loadedData = [];
 
@@ -22,6 +23,19 @@ start();
 function router(req, res) {
   let url = req.url;
   let { route, method } = urlParse(url);
+
+  const headers = {
+    "Access-Control-Allow-Origin": `${constants.corsURL}`,
+    "Access-Control-Allow-Methods": "OPTIONS, POST, GET",
+    "Access-Control-Allow-Credentials": true,
+    "Access-Control-Allow-Headers": "authorization",
+  };
+
+  if (req.method === "OPTIONS") {
+    res.writeHead(204, headers);
+    res.end();
+    return;
+  }
 
   switch (route) {
     case "/sign_up":

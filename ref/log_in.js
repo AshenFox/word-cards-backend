@@ -64,8 +64,9 @@ const log_in = {
           break;
 
         case "/log_in":
-          if (await this.log_in(reqData, res)) {
-            this.respose(200, res);
+          let result = await this.log_in(reqData, res);
+          if (result.value) {
+            this.respose(200, res, JSON.stringify(result));
           } else {
             this.respose(401, res);
           }
@@ -200,12 +201,21 @@ const log_in = {
     if (await this.checkUser(username, password)) {
       let userID = await auth.fetchUserID(username);
       let token = await auth.createToken(userID);
-      auth.setCookie(res, token);
+      // auth.setCookie(res, token);
       console.log(`A user has logged in!`);
-      return true;
+      // return true;
+      return {
+        value: true,
+        token,
+      };
     } else {
       console.log(`The user doesn't meet all the requirements!`);
-      return false;
+      // return false;
+
+      return {
+        value: false,
+        token,
+      };
     }
   },
 };

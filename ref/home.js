@@ -32,6 +32,7 @@ const home = {
       switch (method) {
         case "/get_user_data":
           user = await auth.init(req);
+          // user = await auth.init(reqData);
 
           if (user) {
             this.respose(200, res, await this.getUserData(user));
@@ -42,6 +43,7 @@ const home = {
 
         case "/get_module":
           user = await auth.init(req);
+          // user = await auth.init(reqData);
 
           if (user) {
             this.respose(
@@ -55,22 +57,27 @@ const home = {
           break;
 
         case "/auth":
+          // console.log(reqData);
+          // console.log(req.headers);
+
           if (await auth.init(req)) {
+            // if (await auth.init(reqData)) {
             this.respose(200, res, false);
           } else {
-            auth.setCookie(res, false, true);
+            // auth.setCookie(res, false, true);
             this.respose(401, res, "Failed to authorize");
           }
           break;
 
-        case "/log-out":
-          if (await auth.init(req)) {
-            auth.setCookie(res, false, true);
-            this.respose(200, res, false);
-          } else {
-            this.respose(401, res, "Failed to authorize");
-          }
-          break;
+        // case "/log-out":
+        //   if (await auth.init(req)) {
+        //     // if (await auth.init(reqData)) {
+        //     auth.setCookie(res, false, true);
+        //     this.respose(200, res, false);
+        //   } else {
+        //     this.respose(401, res, "Failed to authorize");
+        //   }
+        //   break;
 
         default:
       }
