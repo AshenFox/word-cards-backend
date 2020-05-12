@@ -41,20 +41,20 @@ const home = {
           }
           break;
 
-        case "/get_module":
-          user = await auth.init(req);
-          // user = await auth.init(reqData);
-
-          if (user) {
-            this.respose(
-              200,
-              res,
-              JSON.stringify(await this.getModule(user, reqData.id))
-            );
-          } else {
-            this.respose(401, res, "Failed to authorize");
-          }
-          break;
+        // case "/get_module":
+        //   user = await auth.init(req);
+        //   user = await auth.init(reqData);
+        //   console.log("Fire!");
+        //   if (user) {
+        //     this.respose(
+        //       200,
+        //       res,
+        //       JSON.stringify(await this.getModule(user, reqData.id))
+        //     );
+        //   } else {
+        //     this.respose(401, res, "Failed to authorize");
+        //   }
+        //   break;
 
         case "/auth":
           // console.log(reqData);

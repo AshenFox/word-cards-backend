@@ -31,7 +31,7 @@ const auth = {
     let header = req.headers.authorization;
     if (!header) return false;
     let token = header.split(" ")[1];
-    console.log(token);
+    // console.log(token);
     // if (header) {
     //   let something = header.split(" ")[1];
     //   console.log(something);
