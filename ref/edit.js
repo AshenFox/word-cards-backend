@@ -1,4 +1,5 @@
 const auth = require("./auth.js");
+// const study_regime = require("./study_regime.js");
 const uuidv4 = require("uuid/v4");
 const moduleModel = require("./module_model.js");
 const cardModel = require("./card_model.js");
@@ -203,6 +204,7 @@ const edit = {
       return newModule;
     } catch (err) {
       console.log(err);
+      return false;
     }
   },
 
@@ -217,11 +219,14 @@ const edit = {
       try {
         let reqData = {
           moduleID,
-          studyRegime: false,
-          creation_date: new Date(),
           term,
           defenition,
           imgurl,
+          creation_date: new Date(),
+          studyRegime: false,
+          stage: 1,
+          nextRep: new Date(),
+          prevStage: new Date(),
         };
 
         let newCard = await model.create(reqData);
@@ -248,14 +253,19 @@ const edit = {
         _id,
       });
 
-      console.log(module, card);
+      // console.log(module, card);
 
       let index = module.cards.indexOf(_id);
-      module.cards.splice(index, 1);
-      module.number = module.number - 1;
 
-      await module.save();
-      await card.deleteOne();
+      if (index) {
+        module.cards.splice(index, 1);
+        module.number = module.number - 1;
+        await module.save();
+      }
+
+      if (card) {
+        await card.deleteOne();
+      }
 
       return true;
     } catch (err) {
@@ -341,6 +351,7 @@ const edit = {
 
   async edit(data, user) {
     let { _id, title, cards, draft } = data;
+
     if (!draft && title == "") {
       return false;
     }
@@ -360,6 +371,13 @@ const edit = {
           oldCard.term = card.term;
           oldCard.defenition = card.defenition;
           oldCard.imgurl = card.imgurl;
+
+          // await study_regime.dropSR(oldCard);
+          if (card.dropSR) {
+            oldCard.stage = 1;
+            oldCard.nextRep = new Date();
+            oldCard.prevStage = new Date();
+          }
 
           await oldCard.save();
         }

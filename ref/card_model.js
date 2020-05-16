@@ -9,6 +9,9 @@ const cardSchema = new Schema({
   imgurl: String,
   creation_date: Date,
   studyRegime: Boolean,
+  stage: Number,
+  nextRep: Date,
+  prevStage: Date,
 });
 
 function cardModel(username) {

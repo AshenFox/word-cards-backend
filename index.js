@@ -9,6 +9,7 @@ const sign_up = require("./ref/sign_up.js");
 const log_in = require("./ref/log_in.js");
 const home = require("./ref/home.js");
 const edit = require("./ref/edit.js");
+const study_regime = require("./ref/study_regime.js");
 const config = require("config");
 const constants = require("./ref/constants.js");
 
@@ -52,6 +53,10 @@ function router(req, res) {
 
     case "/edit":
       edit.manage(method, req, res);
+      break;
+
+    case "/study_regime":
+      study_regime.manage(method, req, res);
       break;
 
     default:
