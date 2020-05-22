@@ -1,10 +1,318 @@
 const auth = require("./auth.js");
-// const study_regime = require("./study_regime.js");
+const study_regime = require("./study_regime.js");
 const uuidv4 = require("uuid/v4");
 const moduleModel = require("./module_model.js");
 const cardModel = require("./card_model.js");
+const notificationModel = require("./notification_model.js");
 const clientInterface = require("./imgsearch.js");
+const notifications = require("./notifications.js");
 const constants = require("./constants.js");
+
+const cardsArr3 = [
+  {
+    term: "Stage 1 ( were to repeat a long time ago )",
+    defenition: "Stage 1 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 1,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 2 ( expired )",
+    defenition: "Stage 2 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 2,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 900000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 3 ( expired )",
+    defenition: "Stage 3 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 3,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 3600000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 4 ( expired )",
+    defenition: "Stage 4 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 4,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 10800000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 5 ( expired )",
+    defenition: "Stage 5 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 5,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 86400000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 6 ( expired )",
+    defenition: "Stage 6 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 6,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 172800000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 7 ( expired )",
+    defenition: "Stage 7 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 7,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 345600000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 8 ( expired )",
+    defenition: "Stage 8 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 8,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 604800000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 9 ( expired )",
+    defenition: "Stage 9 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 9,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 1209600000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 10 ( expired )",
+    defenition: "Stage 10 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 10,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 2419200000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+  {
+    term: "Stage 11 ( expired )",
+    defenition: "Stage 11 ( expired )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 11,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() - 1209600000 - 4838400000),
+    prevStage: new Date(Date.now() - 1209600000),
+  },
+];
+
+const cardsArr2 = [
+  {
+    term: "Stage 1 ( were to repeat a long time ago )",
+    defenition: "Stage 1 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 1,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now()),
+  },
+  {
+    term: "Stage 2 ( were to repeat a long time ago )",
+    defenition: "Stage 2 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 2,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 900000),
+  },
+  {
+    term: "Stage 3 ( were to repeat a long time ago )",
+    defenition: "Stage 3 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 3,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 3600000),
+  },
+  {
+    term: "Stage 4 ( were to repeat a long time ago )",
+    defenition: "Stage 4 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 4,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 10800000),
+  },
+  {
+    term: "Stage 5 ( were to repeat a long time ago )",
+    defenition: "Stage 5 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 5,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 86400000),
+  },
+  {
+    term: "Stage 6 ( were to repeat a long time ago )",
+    defenition: "Stage 6 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 6,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 172800000),
+  },
+  {
+    term: "Stage 7 ( were to repeat a long time ago )",
+    defenition: "Stage 7 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 7,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 345600000),
+  },
+  {
+    term: "Stage 8 ( were to repeat a long time ago )",
+    defenition: "Stage 8 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 8,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 604800000),
+  },
+  {
+    term: "Stage 9 ( were to repeat a long time ago )",
+    defenition: "Stage 9 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 9,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 1209600000),
+  },
+  {
+    term: "Stage 10 ( were to repeat a long time ago )",
+    defenition: "Stage 10 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 10,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 2419200000),
+  },
+  {
+    term: "Stage 11 ( were to repeat a long time ago )",
+    defenition: "Stage 11 ( were to repeat a long time ago )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 11,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(Date.now() + 4838400000),
+  },
+];
+
+const cardsArr = [
+  {
+    term: "Stage 1 ( yet to repeat )",
+    defenition: "Stage 1 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 1,
+    creation_date: new Date(),
+    nextRep: new Date(),
+    prevStage: new Date(),
+  },
+  {
+    term: "Stage 2 ( yet to repeat )",
+    defenition: "Stage 2 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 2,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 900000),
+    prevStage: new Date(Date.now() + 1800000),
+  },
+  {
+    term: "Stage 3 ( yet to repeat )",
+    defenition: "Stage 3 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 3,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 3600000),
+    prevStage: new Date(Date.now() + 7200000),
+  },
+  {
+    term: "Stage 4 ( yet to repeat )",
+    defenition: "Stage 4 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 4,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 10800000),
+    prevStage: new Date(Date.now() + 21600000),
+  },
+  {
+    term: "Stage 5 ( yet to repeat )",
+    defenition: "Stage 5 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 5,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 86400000),
+    prevStage: new Date(Date.now() + 172800000),
+  },
+  {
+    term: "Stage 6 ( yet to repeat )",
+    defenition: "Stage 6 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 6,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 172800000),
+    prevStage: new Date(Date.now() + 345600000),
+  },
+  {
+    term: "Stage 7 ( yet to repeat )",
+    defenition: "Stage 7 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 7,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 345600000),
+    prevStage: new Date(Date.now() + 691200000),
+  },
+  {
+    term: "Stage 8 ( yet to repeat )",
+    defenition: "Stage 8 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 8,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 604800000),
+    prevStage: new Date(Date.now() + 1209600000),
+  },
+  {
+    term: "Stage 9 ( yet to repeat )",
+    defenition: "Stage 9 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 9,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 1209600000),
+    prevStage: new Date(Date.now() + 2419200000),
+  },
+  {
+    term: "Stage 10 ( yet to repeat )",
+    defenition: "Stage 10 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 10,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 2419200000),
+    prevStage: new Date(Date.now() + 4838400000),
+  },
+  {
+    term: "Stage 11 ( yet to repeat )",
+    defenition: "Stage 11 ( yet to repeat )",
+    imgurl: "http://samanthavanrijs.nl/wp-content/uploads/2017/01/test.png",
+    stage: 11,
+    creation_date: new Date(),
+    nextRep: new Date(Date.now() + 4838400000),
+    prevStage: new Date(Date.now() + 9676800000),
+  },
+];
 
 const edit = {
   respose(status, res, data) {
@@ -77,6 +385,8 @@ const edit = {
 
             if (result) {
               this.respose(200, res, false);
+
+              await notifications.notificationTimeout(user);
             } else {
               this.respose(500, res, { msg: "Server error" });
             }
@@ -108,6 +418,8 @@ const edit = {
             let result = await this.deleteCard(reqData, user);
             if (result) {
               this.respose(200, res, { msg: "Deleted successfully" });
+
+              await notifications.notificationTimeout(user);
             } else {
               this.respose(500, res, { msg: "Server error" });
             }
@@ -172,6 +484,23 @@ const edit = {
             let result = await this.deleteModule(reqData._id, user);
             if (result) {
               this.respose(200, res, { msg: "Deleted successfully" });
+
+              await notifications.notificationTimeout(user);
+            } else {
+              this.respose(500, res, { msg: "Something went wrong" });
+            }
+          } else {
+            this.respose(401, res, "Failed to authorize");
+          }
+          break;
+
+        case "/study_regime_test1":
+          user = await auth.init(req);
+
+          if (user) {
+            let result = await this.studyRegimeTest1(user, reqData);
+            if (result) {
+              this.respose(200, res, { msg: "Created successfully", result });
             } else {
               this.respose(500, res, { msg: "Something went wrong" });
             }
@@ -239,6 +568,86 @@ const edit = {
 
     return { cardsID, cards };
   },
+
+  // Testing code ---------------------------------------
+
+  async createCustomModule(user, number) {
+    let model = moduleModel(user.username);
+
+    let reqData = {
+      title: "studyRegimeTest1",
+      author: user.username,
+      author_id: user.server_id,
+      number,
+      creation_date: new Date(),
+      draft: false,
+    };
+
+    try {
+      let newModule = await model.create(reqData);
+
+      return newModule;
+    } catch (err) {
+      console.log(err);
+      return false;
+    }
+  },
+
+  async createCustomCards(user, moduleID, cards) {
+    let model = cardModel(user.username);
+
+    let result = [];
+
+    for (let card of cards) {
+      let {
+        term = "",
+        defenition = "",
+        imgurl = "",
+        stage,
+        creation_date,
+        nextRep,
+        prevStage,
+      } = card;
+
+      try {
+        let reqData = {
+          moduleID,
+          term,
+          defenition,
+          imgurl,
+          creation_date,
+          studyRegime: true,
+          stage,
+          nextRep,
+          prevStage,
+        };
+
+        let newCard = await model.create(reqData);
+        result.push(newCard);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    return result;
+  },
+
+  async studyRegimeTest1(user, data) {
+    let { option } = data;
+    let module = await this.createCustomModule(user, cardsArr.length);
+    let cards;
+    if (option === 1) {
+      cards = await this.createCustomCards(user, module._id, cardsArr);
+    } else if (option === 2) {
+      cards = await this.createCustomCards(user, module._id, cardsArr2);
+    } else if (option === 3) {
+      cards = await this.createCustomCards(user, module._id, cardsArr3);
+    }
+
+    return { module, cards };
+  },
+
+  // Testing code ---------------------------------------
 
   async deleteCard({ moduleID, _id }, user) {
     let newModuleModel = moduleModel(user.username);
@@ -450,6 +859,7 @@ const edit = {
 
       await newModuleModel.deleteMany({});
       await newCardModel.deleteMany({});
+      await notificationModel.deleteMany({ user_id: user._id });
       return true;
     } catch (err) {
       return false;

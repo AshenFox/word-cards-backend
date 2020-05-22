@@ -4,19 +4,39 @@ const http = require("http"),
   fs = require("fs");
 
 const mongoose = require("mongoose");
+const nodeStatic = require("node-static");
+const webpush = require("web-push");
 
 const sign_up = require("./ref/sign_up.js");
 const log_in = require("./ref/log_in.js");
 const home = require("./ref/home.js");
 const edit = require("./ref/edit.js");
 const study_regime = require("./ref/study_regime.js");
+const notifications = require("./ref/notifications.js");
 const config = require("config");
 const constants = require("./ref/constants.js");
 
 let loadedData = [];
 
+const publicVapidKey =
+  "BO-nIcm9sOZzf2YK6W7YkQsPrxjeFwdjoBfETtk7Fu1WOXNATlphUt1Khu5vwZs9WcI9EbgxwPMUuoFLLgmumMc";
+const privateVapidKey = "2ff0a8Wh7SJ6kCIOe67UUPVLm4KI225AmSqSVlS1fTo";
+
+webpush.setVapidDetails(
+  "mailto:test@test.com",
+  publicVapidKey,
+  privateVapidKey
+);
+
 const PORT = process.env.PORT || 5000;
 const server = http.createServer();
+
+const fileServer = new nodeStatic.Server("./static", { cache: 0 });
+
+let pushInterval = setInterval(async () => {
+  await notifications.sendNotifications();
+  // console.log("Fire!");
+}, 60000);
 
 server.on("request", router);
 start();
@@ -59,10 +79,16 @@ function router(req, res) {
       study_regime.manage(method, req, res);
       break;
 
+    case "/notifications":
+      notifications.manage(method, req, res);
+      break;
+
     default:
-      res.writeHead(200);
-      res.write("Welcome to the server!");
-      res.end();
+      try {
+        fileServer.serve(req, res);
+      } catch (err) {
+        console.log(err);
+      }
   }
 }
 

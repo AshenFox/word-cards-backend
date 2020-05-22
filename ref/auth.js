@@ -31,19 +31,7 @@ const auth = {
     let header = req.headers.authorization;
     if (!header) return false;
     let token = header.split(" ")[1];
-    // console.log(token);
-    // if (header) {
-    //   let something = header.split(" ")[1];
-    //   console.log(something);
-    // }
 
-    // let cookie = req.headers.cookie;
-    // if (!cookie) return false;
-    // console.log(cookie);
-
-    // let token = this.regexp.exec(cookie)[0]; might cause problems if there's more than one cookie'
-
-    // console.log(token);
     if (!token) return false;
     let decoded = jwt.verify(token, config.get("jwtSecret"));
     let user = await userModel.findOne({

@@ -12,6 +12,7 @@ const cardSchema = new Schema({
   stage: Number,
   nextRep: Date,
   prevStage: Date,
+  lastRep: Date,
 });
 
 function cardModel(username) {
