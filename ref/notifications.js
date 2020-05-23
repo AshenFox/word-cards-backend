@@ -303,7 +303,7 @@ const notifications = {
   async newNotif(user) {
     try {
       let notif = await notificationModel.create({
-        time: new Date(Date.now() - 60000),
+        time: new Date(Date.now() - 5000),
         number: 5,
         user_id: user._id,
       });
