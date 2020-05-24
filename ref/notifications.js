@@ -245,16 +245,23 @@ const notifications = {
           users[_id] = user;
         }
 
-        let payload = JSON.stringify({
+        let payload = {
           title: "It's time to study some cards!",
-          body: `You have ${notif.number} card${
+        };
+
+        console.log(notif.number);
+
+        if (notif.number) {
+          payload.body = `You have ${notif.number} card${
             notif.number > 1 ? "s" : ""
-          } to repeat`,
-        });
+          } to repeat`;
+        } else {
+          payload.body = "You still have cards to repeat :)";
+        }
+
+        payload = JSON.stringify(payload);
 
         let { pc, tablet, mobile } = users[_id].subscriptions;
-
-        // console.log(pc, tablet, mobile);
 
         if (pc) await webpush.sendNotification(pc, payload);
         if (tablet) await webpush.sendNotification(tablet, payload);
