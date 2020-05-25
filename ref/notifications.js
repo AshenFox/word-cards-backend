@@ -6,6 +6,8 @@ const cardModel = require("./card_model.js");
 const notificationModel = require("./notification_model.js");
 const constants = require("./constants.js");
 
+const { stages } = constants;
+
 let usersNotifTimers = {};
 
 const notifications = {
@@ -156,6 +158,7 @@ const notifications = {
             calcTime: card.nextRep,
             time: card.nextRep,
             user_id: user._id,
+            stage: card.stage,
           };
 
           notif.calcTime = card.nextRep;
@@ -168,7 +171,11 @@ const notifications = {
 
           // log.push(`${card.term} pushed based on number = 0`);
         } else {
-          if (card.nextRep.getTime() - notif.calcTime.getTime() < 1800000) {
+          let stageDelay = stages[notif.stage - 2].prevStage;
+
+          if (notif.stage === 2) stageDelay = stageDelay * 2;
+
+          if (card.nextRep.getTime() - notif.calcTime.getTime() < stageDelay) {
             notif.cards.push(card);
             notif.number++;
             notif.time = card.nextRep;
@@ -181,6 +188,7 @@ const notifications = {
               calcTime: card.nextRep,
               time: card.nextRep,
               user_id: user._id,
+              stage: card.stage,
             };
 
             // console.log(notif);
@@ -214,6 +222,8 @@ const notifications = {
       // };
 
       let resultNotif = [];
+
+      console.log(notifArr);
 
       for (let notif of notifArr) {
         let item = await notificationModel.create(notif);
