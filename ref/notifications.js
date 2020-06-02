@@ -171,9 +171,15 @@ const notifications = {
 
           // log.push(`${card.term} pushed based on number = 0`);
         } else {
-          let stageDelay = stages[notif.stage - 2].prevStage;
+          let stageDelay;
 
-          if (notif.stage === 2) stageDelay = stageDelay * 2;
+          if (notif.stage === 2) {
+            stageDelay = stageDelay * 2;
+          } else if (notif.stage >= 5) {
+            stageDelay = 86400000;
+          } else {
+            stageDelay = stages[notif.stage - 2].prevStage;
+          }
 
           if (card.nextRep.getTime() - notif.calcTime.getTime() < stageDelay) {
             notif.cards.push(card);

@@ -1,5 +1,7 @@
 const constants = {
-  corsURL: "https://hoarfox.github.io", //'' null  "http://127.0.0.1:8080"
+  corsURL: process.env.PORT
+    ? "https://hoarfox.github.io"
+    : "http://127.0.0.1:8080",
   stages: [
     {
       stage: 2,
