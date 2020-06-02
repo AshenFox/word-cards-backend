@@ -173,13 +173,17 @@ const notifications = {
         } else {
           let stageDelay;
 
+          console.log(stageDelay, "first");
+
           if (notif.stage === 2) {
-            stageDelay = stageDelay * 2;
+            stageDelay = 3600000;
           } else if (notif.stage >= 5) {
             stageDelay = 86400000;
           } else {
             stageDelay = stages[notif.stage - 2].prevStage;
           }
+
+          console.log(stageDelay, "second");
 
           if (card.nextRep.getTime() - notif.calcTime.getTime() < stageDelay) {
             notif.cards.push(card);
