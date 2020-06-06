@@ -136,18 +136,10 @@ const notifications = {
 
       let notif;
 
-      // let skipped = [];
-
-      // let log = [];
-
       let remindTime;
 
       for (let card of cards) {
-        // log.push(`Card!!!!!!!!!!!! ${card.term}`);
-
         if (card.nextRep.getTime() - Date.now() <= 0) {
-          // log.push(`${card.term} skipped`);
-          // skipped.push(card);
           continue;
         }
 
@@ -156,6 +148,7 @@ const notifications = {
             cards: [card],
             number: 1,
             calcTime: card.nextRep,
+            calcPrevStage: card.prevStage,
             time: card.nextRep,
             user_id: user._id,
             stage: card.stage,
@@ -168,12 +161,18 @@ const notifications = {
           remindTime = new Date(
             new Date(notif.calcTime.getTime() + 86400000).setHours(12, 0, 0, 0)
           );
-
-          // log.push(`${card.term} pushed based on number = 0`);
         } else {
           let stageDelay;
-
-          console.log(stageDelay, "first");
+          // New logic
+          if (
+            card.stage < notif.stage &&
+            card.prevStage.getTime() < notif.calcPrevStage.getTime()
+          ) {
+            notif.stage = card.stage;
+            notif.calcTime = card.nextRep;
+            notif.calcPrevStage = card.prevStage;
+            notif.time = card.nextRep;
+          }
 
           if (notif.stage >= 5) {
             stageDelay = 43200000;
@@ -181,33 +180,26 @@ const notifications = {
             stageDelay = stages[notif.stage - 2].prevStage;
           }
 
-          console.log(stageDelay, "second");
-
           if (card.nextRep.getTime() - notif.calcTime.getTime() < stageDelay) {
             notif.cards.push(card);
             notif.number++;
             notif.time = card.nextRep;
-
-            // log.push(`${card.term} pushed based on time`);
           } else {
             notif = {
               cards: [card],
               number: 1,
               calcTime: card.nextRep,
+              calcPrevStage: card.prevStage,
               time: card.nextRep,
               user_id: user._id,
               stage: card.stage,
             };
 
-            // console.log(notif);
             notifArr.push(notif);
-
-            // log.push(`${card.term} created new notif`);
           }
         }
       }
 
-      // console.log(notifArr);
       if (notifArr.length) {
         for (let i = 0; i < 4; i++) {
           notifArr.push({
@@ -221,17 +213,7 @@ const notifications = {
         }
       }
 
-      // let result = {
-      //   // log,
-      //   notifArr,
-      //   counter,
-      //   resultNotif: [],
-      //   remindTime,
-      // };
-
       let resultNotif = [];
-
-      console.log(notifArr);
 
       for (let notif of notifArr) {
         let item = await notificationModel.create(notif);
