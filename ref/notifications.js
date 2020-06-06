@@ -175,9 +175,7 @@ const notifications = {
 
           console.log(stageDelay, "first");
 
-          if (notif.stage === 2) {
-            stageDelay = 3600000;
-          } else if (notif.stage >= 5) {
+          if (notif.stage >= 5) {
             stageDelay = 43200000;
           } else {
             stageDelay = stages[notif.stage - 2].prevStage;
