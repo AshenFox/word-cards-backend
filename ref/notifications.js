@@ -263,11 +263,24 @@ const notifications = {
 
         let { pc, tablet, mobile } = users[_id].subscriptions;
 
-        await notificationModel.deleteOne({ _id: notif._id });
+        const errCallback = (err) => {
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            console.log(
+              "Subscription has expired or is no longer valid: ",
+              err
+            );
+          } else {
+            console.log(err);
+          }
+        };
 
-        if (pc) await webpush.sendNotification(pc, payload);
-        if (tablet) await webpush.sendNotification(tablet, payload);
-        if (mobile) await webpush.sendNotification(mobile, payload);
+        if (pc) webpush.sendNotification(pc, payload).catch(errCallback);
+        if (tablet)
+          webpush.sendNotification(tablet, payload).catch(errCallback);
+        if (mobile)
+          webpush.sendNotification(mobile, payload).catch(errCallback);
+
+        await notificationModel.deleteOne({ _id: notif._id });
       }
 
       let result = {
