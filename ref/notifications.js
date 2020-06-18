@@ -175,7 +175,7 @@ const notifications = {
           }
 
           if (notif.stage >= 5) {
-            stageDelay = 43200000;
+            stageDelay = 21600000;
           } else {
             stageDelay = stages[notif.stage - 2].prevStage;
           }
@@ -263,11 +263,11 @@ const notifications = {
 
         let { pc, tablet, mobile } = users[_id].subscriptions;
 
+        await notificationModel.deleteOne({ _id: notif._id });
+
         if (pc) await webpush.sendNotification(pc, payload);
         if (tablet) await webpush.sendNotification(tablet, payload);
         if (mobile) await webpush.sendNotification(mobile, payload);
-
-        await notificationModel.deleteOne({ _id: notif._id });
       }
 
       let result = {
