@@ -35,7 +35,7 @@ const fileServer = new nodeStatic.Server("./static", { cache: 0 });
 
 let pushInterval = setInterval(async () => {
   await notifications.sendNotifications();
-}, 60000);
+}, 5000);
 
 server.on("request", router);
 start();
