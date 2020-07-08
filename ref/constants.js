@@ -16,42 +16,42 @@ const constants = {
     {
       stage: 4,
       nextRep: 10800000,
-      prevStage: 21600000,
+      prevStage: 32400000,
     },
     {
       stage: 5,
       nextRep: 86400000,
-      prevStage: 172800000,
+      prevStage: 259200000,
     },
     {
       stage: 6,
       nextRep: 172800000,
-      prevStage: 345600000,
+      prevStage: 518400000,
     },
     {
       stage: 7,
       nextRep: 345600000,
-      prevStage: 691200000,
+      prevStage: 1036800000,
     },
     {
       stage: 8,
       nextRep: 604800000,
-      prevStage: 1209600000,
+      prevStage: 1814400000,
     },
     {
       stage: 9,
       nextRep: 1209600000,
-      prevStage: 2419200000,
+      prevStage: 3628800000,
     },
     {
       stage: 10,
       nextRep: 2419200000,
-      prevStage: 4838400000,
+      prevStage: 7257600000,
     },
     {
       stage: 11,
       nextRep: 4838400000,
-      prevStage: 9676800000,
+      prevStage: 14515200000,
     },
   ],
 };
