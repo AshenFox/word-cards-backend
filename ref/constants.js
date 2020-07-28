@@ -11,7 +11,7 @@ const constants = {
     {
       stage: 3,
       nextRep: 3600000,
-      prevStage: 7200000,
+      prevStage: 10800000,
     },
     {
       stage: 4,

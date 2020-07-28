@@ -174,8 +174,8 @@ const notifications = {
             notif.time = card.nextRep;
           }
 
-          if (notif.stage >= 5) {
-            stageDelay = 21600000;
+          if (notif.stage >= 3) {
+            stageDelay = 10800000;
           } else {
             stageDelay = stages[notif.stage - 2].prevStage;
           }
